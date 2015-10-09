@@ -1,4 +1,4 @@
-Micro app to proxy Twitter lead POSTs to WhatCounts
+Micro app to proxy AJAX e-mail subscription forms
 ---------------------------------------------------
 
-v0.1.0
+v1.0.0
