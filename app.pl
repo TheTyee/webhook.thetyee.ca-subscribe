@@ -53,8 +53,12 @@ post '/' => sub {
         $result = $res->body;
         # Output response when debugging
         app->log->debug( Dumper( $result ) );
-        # Send 200 back to the request
-        $c->render( text => "$result", status => 200 );
+        if ( $result =~ 'SUCCESS' ) {
+            # Send 200 back to the request
+            $c->render( text => "$result", status => 200 );
+        } elsif ( $result =~ 'FAILURE' ) {
+            $c->render( text => "$result", status => 500 );
+        }
     }
     else {
         my ( $err, $code ) = $tx->error;
