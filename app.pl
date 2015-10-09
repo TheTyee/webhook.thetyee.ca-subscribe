@@ -27,10 +27,11 @@ post '/' => sub {
         $c->render( text => "Forbidden", status => 403 );
         return;
     }
+    $c->res->headers->header('Access-Control-Allow-Origin' => '*');
 
     # Grab the post data
     my $email       = $c->param( 'email' ) || '';
-    my $campaign    = url_escape $c->param( 'campaign' ) || '';
+    my $campaign    = url_escape $c->param( 'custom_campaign' ) || '';
     my $frequency   = $c->param( 'frequency' ) || '';
     # Post it to WhatCounts
     my $args = {
