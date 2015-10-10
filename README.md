@@ -84,7 +84,7 @@ And, if everything worked, you should see:
 
 `Server available at http://127.0.0.1:3000.`
 
-### 6. Bask in the glory of local development!
+#### 6. Bask in the glory of local development!
 
 Do NOT pass go. Do NOT collect $200. Just enjoy the moment. 
 
