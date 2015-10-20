@@ -14,6 +14,9 @@ A simple proxy between Web forms and WhatCounts that doesn't leak API keys, expo
     * email [required]
     * frequency [optional]
     * custom_campaign [optional]
+    * custom_pref_enews_national [optional]
+    * custom_pref_enews_weekly [optional]
+    * custom_pref_enews_daily [optional]
   * Returns:
     * 200 OK
     * 500 Failure
