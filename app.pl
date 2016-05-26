@@ -47,7 +47,7 @@ post '/' => sub {
         force_sub             => '1',
         format                => '2',
         data =>
-            "email,custom_campaign,custom_pref_tyeenews_casl,custom_pref_enews_$frequency,custom_pref_enews_national,custom_pref_enews_weekly,custom_pref_enews_daily^$email,$campaign,1,1,$national,$weekly,$daily"
+            "email,custom_campaign,custom_pref_tyeenews_casl,custom_pref_sponsor_casl,custom_pref_enews_$frequency,custom_pref_enews_national,custom_pref_enews_weekly,custom_pref_enews_daily^$email,$campaign,1,1,1,$national,$weekly,$daily"
     };
     # Output $args when debugging
     app->log->debug( Dumper( $args ) );
