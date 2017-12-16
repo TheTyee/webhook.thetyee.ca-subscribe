@@ -84,11 +84,12 @@ post '/' => sub {
     }
     else {
         my ( $err, $code ) = $tx->error;
-        $result = $code ? "$code response: $err" : "Connection error: $err";
+        $result = $code ? "$code response: $err" : "Connection error: " . $err->{'message'};
         # TODO this needs to notify us of a problem
         app->log->debug( Dumper( $result ) );
-        # Send a 500 back to the request
-        $c->render( text => "$result", status => 500 );
+        # Send a 500 back to the request, along with a helpful message
+        my $responseText = 'There was a problem with your subscription. Please e-mail helpfulfish@thetyee.ca to be added to the list.';
+        $c->render( text => $responseText, status => 500 );
     }
 };
 
