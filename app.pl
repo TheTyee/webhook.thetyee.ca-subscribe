@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 use Mojolicious::Lite;
 use Mojo::Util qw( url_escape );
+use Mojo::Pg;
 use Try::Tiny;
 use Data::Dumper;
 
@@ -8,6 +9,10 @@ use Data::Dumper;
 # Get the configuration
 my $config = plugin 'JSONConfig';
 app->secrets( [ $config->{'app_secret'} ] );
+
+# Configure a database connection and handle
+my $pg = Mojo::Pg->new( $config->{'pg_url'} )->search_path([ $config->{'pg_schema'} ]);;
+my $db = $pg->db;
 
 # Get a UserAgent
 my $ua = Mojo::UserAgent->new;
@@ -30,12 +35,25 @@ post '/' => sub {
     $c->res->headers->header('Access-Control-Allow-Origin' => '*');
 
     # Grab the post data
-    my $email       = $c->param( 'email' ) || '';
+    my $email       = $c->param( 'email' )                      || '';
     my $campaign    = url_escape $c->param( 'custom_campaign' ) || '';
-    my $frequency   = $c->param( 'frequency' ) || '';
-    my $national    = $c->param( 'custom_pref_enews_national' );
-    my $weekly      = $c->param( 'custom_pref_enews_weekly' );
-    my $daily       = $c->param( 'custom_pref_enews_daily' );
+    my $frequency   = $c->param( 'frequency' )                  || '';
+    my $national    = $c->param( 'custom_pref_enews_national' ) || '';
+    my $weekly      = $c->param( 'custom_pref_enews_weekly' )   || '';
+    my $daily       = $c->param( 'custom_pref_enews_daily' )    || '';
+
+    # Save it to the database
+    eval {
+        $db->insert('emails', {
+                email => $email,
+                campaign => $campaign,
+                national => $national,
+                weekly => $weekly,
+                daily => $daily,
+                frequency => $frequency
+        }, {returning => 'email'});
+    };
+    app->log->debug( $@ ) if $@;
 
     # Post it to WhatCounts
     my $args = {
