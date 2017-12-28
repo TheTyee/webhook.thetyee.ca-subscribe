@@ -59,7 +59,9 @@ post '/' => sub {
         app->log->debug( Dumper( $result ) );
         if ( $result =~ 'SUCCESS' ) {
             # Send 200 back to the request
-            $c->render( text => "$result", status => 200 );
+            my $statusText = "<h2><span class='glyphicon glyphicon-check' aria-hidden='true'></span>&nbsp;Almost done</h2>";
+            $statusText   .= "<p>Please check your inbox for an email from thetyee.ca containing a link to complete your subscription.</p>";
+            $c->render( text => $statusText, status => 200 );
         } elsif ( $result =~ 'FAILURE' ) {
             $c->render( text => "$result", status => 500 );
         }
