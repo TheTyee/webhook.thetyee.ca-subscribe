@@ -3,3 +3,4 @@
 %uri=https://github.com/TheTyee/webhook.thetyee.ca-subscribe
 
 appschema 2017-12-28T05:51:29Z Phillip Smith <ps@phillipadsmith.com> # Add schema for emailsubs
+subrequests [appschema] 2017-12-28T06:07:48Z Phillip Smith <ps@phillipadsmith.com> # Create a table to track subscription requests
