@@ -44,14 +44,13 @@ post '/' => sub {
 
     # Save it to the database
     eval {
-        $db->insert('emails', {
+        $db->insert('subrequests', {
                 email => $email,
                 campaign => $campaign,
                 national => $national,
                 weekly => $weekly,
                 daily => $daily,
-                frequency => $frequency
-        }, {returning => 'email'});
+        }, {returning => 'id'});
     };
     app->log->debug( $@ ) if $@;
 
