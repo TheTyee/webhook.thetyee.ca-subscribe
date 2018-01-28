@@ -66,6 +66,7 @@ post '/' => sub {
     my $weekly      = $c->param( 'custom_pref_enews_weekly' )   || '';
     my $daily       = $c->param( 'custom_pref_enews_daily' )    || '';
 
+    # TODO move to a helper function
     # Save it to the database
     eval {
         $db->insert('subrequests', {
@@ -84,14 +85,24 @@ post '/' => sub {
         p                     => $wc_pw,
         list_id               => $wc_list_id,
         cmd                   => 'sub',
-        #override_confirmation => '1',
-        #force_sub             => '1',
+        #override_confirmation => '1', Removed Dec 2018 to force double opt-in
+        #force_sub             => '1', Removed Dec 2018 to force double opt-in
         format                => '2',
         data =>
             "email,custom_campaign,custom_pref_tyeenews_casl,custom_pref_sponsor_casl,custom_pref_enews_$frequency,custom_pref_enews_national,custom_pref_enews_weekly,custom_pref_enews_daily^$email,$campaign,1,1,1,$national,$weekly,$daily"
     };
     # Output $args when debugging
     app->log->debug( Dumper( $args ) );
+
+    # Text and HTML response strings
+    my $successText = 'Please check your inbox for an email from thetyee.ca containing a link ';
+    $successText    .= 'to complete your subscription.';
+    my $successHtml = '<h2><span class="glyphicon glyphicon-check" aria-hidden="true">';
+    $successHtml   .= '</span>&nbsp;Almost done</h2>';
+    $successHtml   .= '<p> ' . $successText . '</p>';
+    my $errorText = 'There was a problem with your subscription. Please e-mail helpfulfish@thetyee.ca to be added to the list.';
+    my $errorHtml = '<p>' . $errorText . '</p>';
+
     my $result;
     my $tx = $ua->post( $API => form => $args );
     if ( my $res = $tx->success ) {
@@ -99,12 +110,21 @@ post '/' => sub {
         # Output response when debugging
         app->log->debug( Dumper( $result ) );
         if ( $result =~ 'SUCCESS' ) {
+            my $subscriberId = $c->get_subscriber_id( $email );
             # Send 200 back to the request
-            my $statusText = "<h2><span class='glyphicon glyphicon-check' aria-hidden='true'></span>&nbsp;Almost done</h2>";
-            $statusText   .= "<p>Please check your inbox for an email from thetyee.ca containing a link to complete your subscription.</p>";
-            $c->render( text => $statusText, status => 200 );
+            $c->render( json => { 
+                    text => $successText, 
+                    html => $successHtml, 
+                    subcriberId => $subscriberId, 
+                    resultStr => $result }, 
+                status => 200 );
+            
         } elsif ( $result =~ 'FAILURE' ) {
-            $c->render( text => "$result", status => 500 );
+            $c->render( json => { 
+                    text => $errorText, 
+                    html => $errorHtml, 
+                    resultStr => $result }, 
+                status => 500 );
         }
     }
     else {
@@ -113,8 +133,11 @@ post '/' => sub {
         # TODO this needs to notify us of a problem
         app->log->debug( Dumper( $result ) );
         # Send a 500 back to the request, along with a helpful message
-        my $responseText = 'There was a problem with your subscription. Please e-mail helpfulfish@thetyee.ca to be added to the list.';
-        $c->render( text => $responseText, status => 500 );
+            $c->render( json => { 
+                    text => $errorText, 
+                    html => $errorHtml, 
+                    resultStr => $result }, 
+                status => 500 );
     }
 };
 
