@@ -25,6 +25,30 @@ my $wc_pw      = $config->{'wc_password'};
 my $secret     = $config->{'post_secret'};
 my $host       = $config->{'host'};
 
+helper get_subscriber_id => sub {
+        my $self = shift;
+        my $email = shift;
+        my $search_args = {
+            r                     => $wc_realm,
+            p                     => $wc_pw,
+            list_id               => $wc_list_id,
+            cmd                   => 'findinlist',
+            email                 => $email
+        };
+        my $result;
+        my $r = $ua->post( $API => form => $search_args );
+        if ( my $res = $r->success ) { $result = $res->body }
+        else {
+            my ( $err, $code ) = $r->error;
+            $result
+                = $code ? "$code response: $err" : "Connection error: $err";
+        }
+    # Just the subscriber ID please!
+    $result =~ s/^(?<subscriber_id>\d+?)\s.*/$+{'subscriber_id'}/gi;
+    chomp( $result );
+    return $result;
+};
+
 post '/' => sub {
     my $c = shift;
     # Only accept POSTS from a specified host
