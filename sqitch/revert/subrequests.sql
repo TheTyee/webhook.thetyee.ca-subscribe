@@ -2,6 +2,6 @@
 
 BEGIN;
 
-DROP TABLE subrequests;
+DROP TABLE emailsubs.subrequests;
 
 COMMIT;
