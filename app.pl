@@ -70,6 +70,7 @@ post '/' => sub {
     # TODO move to a helper function
     # Save it to the database
     eval {
+        return unless $email !~ 'api@thetyee.ca';
         $db->insert('subrequests', {
                 email => $email,
                 campaign => $campaign,
@@ -78,7 +79,7 @@ post '/' => sub {
                 daily => $daily,
         }, {returning => 'id'});
     };
-    app->log->debug( $@ ) if $@;
+    app->log->info( $@ ) if $@;
 
     # Post it to WhatCounts
     my $args = {
