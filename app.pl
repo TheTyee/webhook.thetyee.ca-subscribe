@@ -77,8 +77,7 @@ post '/' => sub {
     app->log->debug( Dumper( $args ) );
 
     # Text and HTML response strings
-    my $successText = 'Please check your inbox for an email from thetyee.ca containing a link ';
-    $successText    .= 'to complete your subscription.';
+    my $successText = 'Please check your inbox for an email from thetyee.ca containing a confirmation message';
     my $successHtml = '<h2><span class="glyphicon glyphicon-check" aria-hidden="true">';
     $successHtml   .= '</span>&nbsp;Almost done</h2>';
     $successHtml   .= '<p> ' . $successText . '</p>';
