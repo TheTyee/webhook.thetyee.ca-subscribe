@@ -1,7 +1,6 @@
 #!/usr/bin/env perl
 use Mojolicious::Lite;
 use Mojo::Util qw( url_escape );
-use Mojo::Pg;
 use Try::Tiny;
 use Data::Dumper;
 
@@ -9,10 +8,6 @@ use Data::Dumper;
 # Get the configuration
 my $config = plugin 'JSONConfig';
 app->secrets( [ $config->{'app_secret'} ] );
-
-# Configure a database connection and handle
-my $pg = Mojo::Pg->new( $config->{'pg_url'} )->search_path([ $config->{'pg_schema'} ]);;
-my $db = $pg->db;
 
 # Get a UserAgent
 my $ua = Mojo::UserAgent->new;
@@ -67,28 +62,14 @@ post '/' => sub {
     my $daily       = $c->param( 'custom_pref_enews_daily' );
     my $events       = $c->param( 'custom_pref_enews_events' );
 
-    # TODO move to a helper function
-    # Save it to the database
-    eval {
-        return unless $email !~ 'api@thetyee.ca';
-        $db->insert('subrequests', {
-                email => $email,
-                campaign => $campaign,
-                national => $national,
-                weekly => $weekly,
-                daily => $daily,
-        }, {returning => 'id'});
-    };
-    app->log->info( $@ ) if $@;
-
     # Post it to WhatCounts
     my $args = {
         r                     => $wc_realm,
         p                     => $wc_pw,
         list_id               => $wc_list_id,
         cmd                   => 'sub',
-        #override_confirmation => '1', Removed Dec 2018 to force double opt-in
-        #force_sub             => '1', Removed Dec 2018 to force double opt-in
+        override_confirmation => '1',
+        force_sub             => '1',
         format                => '2',
         data =>"email,custom_campaign,custom_pref_tyeenews_casl,custom_pref_enews_$frequency,custom_pref_enews_national,custom_pref_enews_weekly,custom_pref_enews_daily,custom_pref_enews_events^$email,$campaign,1,1,$national,$weekly,$daily,$events"
     };

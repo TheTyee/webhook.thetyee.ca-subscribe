@@ -3,3 +3,4 @@ cpanfile.snapshot
 app.production.json
 app.development.json
 /.perl-version
+/.DS_Store
