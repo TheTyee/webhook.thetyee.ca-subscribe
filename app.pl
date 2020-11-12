@@ -62,6 +62,8 @@ post '/' => sub {
     my $daily       = $c->param( 'custom_pref_enews_daily' );
     my $events       = $c->param( 'custom_pref_enews_events' );
 
+my $ub = Mojo::UserAgent->new;
+
     # Post it to WhatCounts
     my $args = {
         r                     => $wc_realm,
@@ -83,7 +85,7 @@ post '/' => sub {
     $successHtml   .= '<p> ' . $successText . '</p>';
     my $errorText = 'There was a problem with your subscription. Please e-mail helpfulfish@thetyee.ca to be added to the list.';
     my $errorHtml = '<p>' . $errorText . '</p>';
-
+    my $notification;
     my $result;
     my $tx = $ua->post( $API => form => $args );
     if ( my $res = $tx->success ) {
@@ -99,14 +101,19 @@ post '/' => sub {
                     subcriberId => $subscriberId, 
                     resultStr => $result }, 
                 status => 200 );
-            
+$notification = $email . ", success. Campaign = $campaign";
+            app->log->info($notification) unless $email eq 'api@thetyee.ca';
+$ub->post($config->{'notify_url'} => json => {text => $notification }) unless $email eq 'api@thetyee.ca'; 
         } elsif ( $result =~ 'FAILURE' ) {
             $c->render( json => { 
                     text => $errorText, 
                     html => $errorHtml, 
                     resultStr => $result }, 
                 status => 500 );
-        }
+		$notification = $email . ", failure.  Campaign = $campaign, error: " .$errorText;
+		app->log->info($email . ", failure \n") unless $email eq 'api@thetyee.ca';
+        $ub->post($config->{'notify_url'} => json => {text => $notification }) unless $email eq 'api@thetyee.ca'; 
+	}
     }
     else {
         my ( $err, $code ) = $tx->error;
@@ -119,6 +126,7 @@ post '/' => sub {
                     html => $errorHtml, 
                     resultStr => $result }, 
                 status => 500 );
+	app->log->info("error: "  . $errorText) unless $email eq 'api@thetyee.ca';
     }
 };
 
