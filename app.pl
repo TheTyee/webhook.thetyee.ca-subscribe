@@ -101,7 +101,7 @@ my $ub = Mojo::UserAgent->new;
                     subcriberId => $subscriberId, 
                     resultStr => $result }, 
                 status => 200 );
-$notification = $email . ", success. Campaign = $campaign";
+$notification = $email . ", success. Campaign = $campaign ";
             app->log->info($notification) unless $email eq 'api@thetyee.ca';
 $ub->post($config->{'notify_url'} => json => {text => $notification }) unless $email eq 'api@thetyee.ca'; 
         } elsif ( $result =~ 'FAILURE' ) {
