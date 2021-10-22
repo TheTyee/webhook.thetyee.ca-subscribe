@@ -61,6 +61,7 @@ post '/' => sub {
     my $weekly      = $c->param( 'custom_pref_enews_weekly' );
     my $daily       = $c->param( 'custom_pref_enews_daily' );
     my $events       = $c->param( 'custom_pref_enews_events' );
+    my $whitegaze   =  $c->param( 'custom_pref_enews_white_gaze' );
 
 my $ub = Mojo::UserAgent->new;
 
@@ -73,7 +74,7 @@ my $ub = Mojo::UserAgent->new;
         override_confirmation => '1',
         force_sub             => '1',
         format                => '2',
-        data =>"email,custom_campaign,custom_pref_tyeenews_casl,custom_pref_enews_$frequency,custom_pref_enews_national,custom_pref_enews_weekly,custom_pref_enews_daily,custom_pref_enews_events^$email,$campaign,1,1,$national,$weekly,$daily,$events"
+        data =>"email,custom_campaign,custom_pref_tyeenews_casl,custom_pref_enews_$frequency,custom_pref_enews_national,custom_pref_enews_weekly,custom_pref_enews_daily,custom_pref_enews_events,custom_pref_enews_white_gaze^$email,$campaign,1,1,$national,$weekly,$daily,$events,$whitegaze"
     };
     # Output $args when debugging
     app->log->debug( Dumper( $args ) );
@@ -101,7 +102,7 @@ my $ub = Mojo::UserAgent->new;
                     subcriberId => $subscriberId, 
                     resultStr => $result }, 
                 status => 200 );
-$notification = $email . ", success. Campaign = $campaign ";
+$notification = $email . ", success. Campaign = $campaign";
             app->log->info($notification) unless $email eq 'api@thetyee.ca';
 $ub->post($config->{'notify_url'} => json => {text => $notification }) unless $email eq 'api@thetyee.ca'; 
         } elsif ( $result =~ 'FAILURE' ) {
