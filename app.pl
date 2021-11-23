@@ -74,7 +74,7 @@ my $ub = Mojo::UserAgent->new;
         override_confirmation => '1',
         force_sub             => '1',
         format                => '2',
-        data =>"email,custom_pref_sponsor_enews,custom_campaign,custom_pref_tyeenews_casl,custom_pref_enews_$frequency,custom_pref_enews_national,custom_pref_enews_weekly,custom_pref_enews_daily,custom_pref_enews_events,custom_pref_enews_white_gaze^$email,1,$campaign,1,1,$national,$weekly,$daily,$events,$whitegaze"};
+        data =>"email,custom_pref_sponsor_enews,custom_pref_sponsor_casl,custom_campaign,custom_pref_tyeenews_casl,custom_pref_enews_$frequency,custom_pref_enews_national,custom_pref_enews_weekly,custom_pref_enews_daily,custom_pref_enews_events,custom_pref_enews_white_gaze^$email,1,1,$campaign,1,1,$national,$weekly,$daily,$events,$whitegaze"};
     # Output $args when debugging
     app->log->debug( Dumper( $args ) );
 
