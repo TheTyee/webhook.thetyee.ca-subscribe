@@ -6,7 +6,7 @@ use Data::Dumper;
 use JSON qw(encode_json decode_json);
 sub true () { JSON::true }
 sub false () { JSON::false }
-
+use Digest::MD5  qw(md5 md5_hex md5_base64);
 
 # Get the configuration
 my $config = plugin 'JSONConfig';
@@ -66,6 +66,8 @@ post '/' => sub {
 
     # Grab the post data
     my $email       = $c->param( 'email' )                      || '';
+    my $md5email    = lc $email;
+    $md5email = md5_hex ($email); 
     my $campaign    = url_escape $c->param( 'custom_campaign' ) || '';
     my $frequency   = $c->param( 'frequency' ) || '';
     my $national    = $c->param( 'custom_pref_enews_national' ) || '';
@@ -95,7 +97,7 @@ if ($weekly) {$interests -> {'7056e4ff8d'} = \1 };
 
     # Post it to Mailchimp
     my $args = {
-        email_address   => $email,
+        email_address   => $email,,
         status =>       => 'subscribed',
         merge_fields => $merge_fields,
         interests => $interests
@@ -116,8 +118,8 @@ if ($weekly) {$interests -> {'7056e4ff8d'} = \1 };
     my $errorHtml = '<p>' . $errorText . '</p>';
     my $notification;
     my $result;
-    my $URL = Mojo::URL->new('https://Bryan:' . $config->{"mc_key"} . '@us14.api.mailchimp.com/3.0/lists/' . $config->{"mc_listid"} . '/members');
-    my $tx = $ua->post( $URL => json => $args );
+    my $URL = Mojo::URL->new('https://Bryan:' . $config->{"mc_key"} . '@us14.api.mailchimp.com/3.0/lists/' . $config->{"mc_listid"} . '/members/' . $md5email);
+    my $tx = $ua->put( $URL => json => $args );
     my $js = $tx->result->json;
      app->log->debug( "code" . $tx->res->code);
       app->log->debug( Dumper( $js));
