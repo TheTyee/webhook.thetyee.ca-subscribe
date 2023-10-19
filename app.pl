@@ -7,7 +7,7 @@ use JSON qw(encode_json decode_json);
 sub true () { JSON::true }
 sub false () { JSON::false }
 use Digest::MD5  qw(md5 md5_hex md5_base64);
-
+use Mojo::UserAgent;
 # Get the configuration
 my $config = plugin 'JSONConfig';
 app->secrets( [ $config->{'app_secret'} ] );
@@ -67,7 +67,7 @@ post '/' => sub {
     # Grab the post data
     my $email       = $c->param( 'email' )                      || '';
     my $md5email    = lc $email;
-    $md5email = md5_hex ($email); 
+    $md5email = md5_hex ($md5email); 
     my $campaign    = url_escape $c->param( 'custom_campaign' ) || '';
     my $frequency   = $c->param( 'frequency' ) || '';
     my $national    = $c->param( 'custom_pref_enews_national' ) || '';
@@ -79,14 +79,7 @@ post '/' => sub {
 my $ub = Mojo::UserAgent->new;
 
 my $merge_fields = {
-    P_S_CASL => 1,
-    CAMPAIGN => $campaign,
-    P_T_CASL => 1,
-    P_E_NAT => $national,
-    P_E_WEEKLY => $weekly,
-    P_E_DAILY => $daily,
-    P_E_EVENTS => $events,
-    P_E_W_GAZE => $whitegaze
+    CAMPAIGN => $campaign
 };
     
 my $interests = {};
@@ -95,9 +88,15 @@ if ($national) { $interests -> {'34d456542c'} = \1 };
 if ($daily) { $interests -> {'e96d6919a3'} = \1 };
 if ($weekly) {$interests -> {'7056e4ff8d'} = \1 };
 
+$interests -> {'3f212bb109'} = \1 ;
+$interests -> {'5c17ad7674'} = \1 ;
+
+# add to both casl specila newsletter prefs by default
+
+
     # Post it to Mailchimp
     my $args = {
-        email_address   => $email,,
+        email_address   => $email,
         status =>       => 'subscribed',
         merge_fields => $merge_fields,
         interests => $interests
@@ -118,6 +117,7 @@ if ($weekly) {$interests -> {'7056e4ff8d'} = \1 };
     my $errorHtml = '<p>' . $errorText . '</p>';
     my $notification;
     my $result;
+    
     my $URL = Mojo::URL->new('https://Bryan:' . $config->{"mc_key"} . '@us14.api.mailchimp.com/3.0/lists/' . $config->{"mc_listid"} . '/members/' . $md5email);
     my $tx = $ua->put( $URL => json => $args );
     my $js = $tx->result->json;
@@ -136,10 +136,10 @@ if ($weekly) {$interests -> {'7056e4ff8d'} = \1 };
             my $subscriberId = $js->{'unique_email_id'};
             # Send 200 back to the request
             $c->render( json => { 
-                    text => $successText, 
+                    text => $successText,
                     html => $successHtml, 
                     subcriberId => $subscriberId, 
-                    resultStr => $result }, 
+                    resultStr => $result  }, 
                 status => 200 );
 $notification = $email . ", success. Campaign = $campaign";
             app->log->info($notification) unless $email eq 'api@thetyee.ca';
